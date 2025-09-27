@@ -1,0 +1,118 @@
+import java.util.*;
+
+public class VirtualClassroomManager {
+    // Data structures to store classrooms, students, and assignments
+    private final Map<String, Set<String>> classrooms = new HashMap<>(); // Classroom name -> Set of student IDs
+    private final Map<String, String> students = new HashMap<>();       // Student ID -> Classroom name
+    private final Map<String, Set<String>> assignments = new HashMap<>(); // Classroom name -> Set of assignment details
+
+    public static void main(String[] args) {
+        VirtualClassroomManager manager = new VirtualClassroomManager();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Virtual Classroom Manager");
+        System.out.println("Available commands: add_classroom, add_student, schedule_assignment, submit_assignment, exit");
+
+        while (true) {
+            System.out.print("> ");
+            String input = scanner.nextLine().trim();
+            if (input.equalsIgnoreCase("exit")) {
+                System.out.println("Exiting application.");
+                break;
+            }
+            String[] parts = input.split(" ", 4);
+            if (parts.length == 0) continue;
+
+            String command = parts[0];
+            try {
+                switch (command) {
+                    case "add_classroom":
+                        if (parts.length < 2) {
+                            System.out.println("Usage: add_classroom <name>");
+                        } else {
+                            manager.addClassroom(parts[1]);
+                        }
+                        break;
+                    case "add_student":
+                        if (parts.length < 3) {
+                            System.out.println("Usage: add_student <id> <class_name>");
+                        } else {
+                            manager.addStudent(parts[1], parts[2]);
+                        }
+                        break;
+                    case "schedule_assignment":
+                        if (parts.length < 3) {
+                            System.out.println("Usage: schedule_assignment <class_name> <details>");
+                        } else {
+                            manager.scheduleAssignment(parts[1], parts[2]);
+                        }
+                        break;
+                    case "submit_assignment":
+                        if (parts.length < 4) {
+                            System.out.println("Usage: submit_assignment <student_id> <class_name> <details>");
+                        } else {
+                            manager.submitAssignment(parts[1], parts[2], parts[3]);
+                        }
+                        break;
+                    default:
+                        System.out.println("Unknown command.");
+                }
+            } catch (Exception e) {
+                System.out.println("An unexpected error occurred: " + e.getMessage());
+            }
+        }
+        scanner.close();
+    }
+
+    // Add a new classroom
+    public void addClassroom(String className) {
+        if (classrooms.containsKey(className)) {
+            System.out.println("Error: Classroom " + className + " already exists.");
+            return;
+        }
+        classrooms.put(className, new HashSet<>());
+        assignments.put(className, new HashSet<>());
+        System.out.println("Classroom " + className + " has been created.");
+    }
+
+    // Add a student to a classroom
+    public void addStudent(String studentId, String className) {
+        if (!classrooms.containsKey(className)) {
+            System.out.println("Error: Classroom " + className + " not found.");
+            return;
+        }
+        if (students.containsKey(studentId)) {
+            System.out.println("Error: Student " + studentId + " is already enrolled in a classroom.");
+            return;
+        }
+        classrooms.get(className).add(studentId);
+        students.put(studentId, className);
+        System.out.println("Student " + studentId + " has been enrolled in " + className + ".");
+    }
+
+    // Schedule an assignment for a classroom
+    public void scheduleAssignment(String className, String assignmentDetails) {
+        if (!classrooms.containsKey(className)) {
+            System.out.println("Error: Classroom " + className + " not found.");
+            return;
+        }
+        assignments.get(className).add(assignmentDetails);
+        System.out.println("Assignment for " + className + " has been scheduled.");
+    }
+
+    // Submit an assignment for a student
+    public void submitAssignment(String studentId, String className, String assignmentDetails) {
+        if (!classrooms.containsKey(className)) {
+            System.out.println("Error: Classroom " + className + " not found.");
+            return;
+        }
+        if (!students.containsKey(studentId) || !students.get(studentId).equals(className)) {
+            System.out.println("Error: Student " + studentId + " not found in " + className + ".");
+            return;
+        }
+        if (!assignments.get(className).contains(assignmentDetails)) {
+            System.out.println("Error: Assignment not found in " + className + ".");
+            return;
+        }
+        System.out.println("Assignment submitted by Student " + studentId + " in " + className + ".");
+    }
+}
